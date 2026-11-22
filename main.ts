@@ -5,6 +5,7 @@ import { chmodSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from '
 import { join } from 'node:path';
 const I = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const O = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const c = (p: string, m: number) => { try { chmodSync(p, m); } catch { /* ignore */ } };
 // [opcode, immediate bytes, pops, pushes]; missing opcode = trap 5.
 const S: Array<[number, number, number, number]> = [
   [0, 0, 0, 0], [1, 1, 0, 1], [2, 4, 0, 1], [3, 0, 1, 0], [4, 0, 1, 2],
@@ -119,10 +120,9 @@ for (const id of readdirSync(I).sort()) {
   const input = readFileSync(join(I, id, 'input.bin'));
   const { out, exit } = run(prog, input);
   mkdirSync(join(O, id), { recursive: true, mode: 0o755 });
-  chmodSync(join(O, id), 0o755);
-  chmodSync(O, 0o755);
+  c(join(O, id), 0o755);
   writeFileSync(join(O, id, 'stdout.bin'), out, { mode: 0o644 });
-  chmodSync(join(O, id, 'stdout.bin'), 0o644);
+  c(join(O, id, 'stdout.bin'), 0o644);
   writeFileSync(join(O, id, 'exit.txt'), String(exit) + '\n', { mode: 0o644 });
-  chmodSync(join(O, id, 'exit.txt'), 0o644);
+  c(join(O, id, 'exit.txt'), 0o644);
 }
